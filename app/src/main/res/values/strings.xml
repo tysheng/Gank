@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Gank</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+
+    <string name="setting">设置</string>
+    <string name="gank_daily">每日</string>
+    <string name="gank_category">分类</string>
+
+    <string name="user_name">Ty Sheng</string>
+    <string name="user_email">tyshengsx@gmail.com</string>
+    <string name="no_network_connected">貌似没有网络连接:(</string>
+    <string name="exit">再按一次退出应用:)</string>
+    <string name="on_error">获取出错:(</string>
+    <string name="picture_has_save_to">图片已保存至 %s 文件夹</string>
+    <string name="video_error">今天的视频好像出了点问题:(</string>
+    <string name="net_data_error">数据有点不太对劲:(</string>
+    <string name="no_more_data">没有更多数据了~</string>
+    <string name="clear_cache">缓存已清除:)</string>
+    <string name="sort">排序</string>
+</resources>

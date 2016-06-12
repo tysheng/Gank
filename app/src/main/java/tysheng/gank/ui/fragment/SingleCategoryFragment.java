@@ -24,6 +24,7 @@ import tysheng.gank.api.MyRetrofit;
 import tysheng.gank.base.BaseFragment;
 import tysheng.gank.bean.GankCategory;
 import tysheng.gank.bean.GankResult;
+import tysheng.gank.ui.WebVideoActivity;
 import tysheng.gank.ui.WebviewActivity;
 import tysheng.gank.utils.SnackbarUtil;
 import tysheng.gank.widget.ACache;
@@ -114,6 +115,7 @@ public class SingleCategoryFragment extends BaseFragment {
             }
         });
     }
+
     private void setItemClick() {
         mAdapter.setOnItemClickListener(new GankCategoryAdapter.OnItemClickListener() {
             @Override
@@ -122,16 +124,21 @@ public class SingleCategoryFragment extends BaseFragment {
 //                    Intent intent = PictureActivity.newIntent(frmContext, data.get(position).url,
 //                            data.get(position).desc);
 //                    startActivity(intent);
+                } else if (data.get(position).type.equals("休息视频")) {
+                    Intent intent = new Intent(getActivity(), WebVideoActivity.class);
+                    intent.putExtra(WebVideoActivity.URL, data.get(position).url);
+                    startActivity(intent);
                 } else {
                     Intent intent = new Intent(mContext, WebviewActivity.class);
                     intent.putExtra(WebviewActivity.URL, data.get(position).url);
                     intent.putExtra(WebviewActivity.TITLE, data.get(position).desc);
                     startActivity(intent);
                 }
+
             }
         });
-
     }
+
     private void getData(String category, final int page) {
         mSubscription.add(MyRetrofit.getGankApi(MyApplication.getInstance(), GankApi.BASE_URL)
                 .getCategory(category, 10, page)

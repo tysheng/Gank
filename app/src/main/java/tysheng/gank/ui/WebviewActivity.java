@@ -2,6 +2,7 @@ package tysheng.gank.ui;
 
 import android.content.Intent;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 
 import butterknife.BindView;
 import tysheng.gank.R;
@@ -23,7 +24,13 @@ public class WebviewActivity extends BaseActivity {
     @Override
     public void initData() {
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mToolbar.setNavigationIcon(R.drawable.ic_arrow_back_24dp);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         Intent intent = getIntent();
         mUrl = intent.getStringExtra(WebviewActivity.URL);

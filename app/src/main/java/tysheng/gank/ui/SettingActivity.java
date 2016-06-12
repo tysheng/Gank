@@ -3,6 +3,8 @@ package tysheng.gank.ui;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.provider.MediaStore;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.content.IntentCompat;
 import android.support.v7.app.AlertDialog;
@@ -11,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 
 import butterknife.BindView;
 import tysheng.gank.Constant;
@@ -20,6 +24,7 @@ import tysheng.gank.ui.fragment.MyPreferenceFragment;
 import tysheng.gank.ui.inter.FragmentCallback;
 import tysheng.gank.utils.SPHelper;
 import tysheng.gank.utils.SnackbarUtil;
+import tysheng.gank.widget.ACache;
 
 /**
  * Created by shengtianyang on 16/5/3.
@@ -29,6 +34,8 @@ public class SettingActivity extends BaseActivity implements FragmentCallback {
     Toolbar mToolbar;
     SPHelper mSPHelper;
     TextInputEditText mEditText;
+    private static final int RESULT_LOAD_IMAGE = 88;
+    ACache mCache;
     @Override
     public void initData() {
         setSupportActionBar(mToolbar);
@@ -41,7 +48,7 @@ public class SettingActivity extends BaseActivity implements FragmentCallback {
         });
 
         mSPHelper = new SPHelper(this);
-
+        mCache = ACache.get(this);
         getFragmentManager().beginTransaction()
                 .replace(R.id.frameLayout, new MyPreferenceFragment())
                 .commit();
@@ -85,12 +92,11 @@ public class SettingActivity extends BaseActivity implements FragmentCallback {
                 SnackbarUtil.showSnackbar(mToolbar, getString(R.string.clear_cache));
                 break;
             case "avatar":
-//                Intent i = new Intent(Intent.ACTION_PICK, null);
-//                i.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
-//                startActivityForResult(i, RESULT_LOAD_IMAGE);
+                Intent i = new Intent(Intent.ACTION_PICK, null);
+                i.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+                startActivityForResult(i, RESULT_LOAD_IMAGE);
                 break;
             case "name":
-
                 getDialog().setTitle("输入你的姓名")
                         .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                             @Override
@@ -103,18 +109,6 @@ public class SettingActivity extends BaseActivity implements FragmentCallback {
 
                 break;
             case "email":
-//                new MaterialDialog.Builder(this)
-//                        .title("输入你的邮箱")
-//                        .positiveText("Done")
-//                        .negativeText("Cancel")
-//                        .inputRange(1, 15)
-//                        .input("", "", false, new MaterialDialog.InputCallback() {
-//                            @Override
-//                            public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
-//                                mSPHelper.setSpString(Constant.USER_EMAIL, input.toString());
-//                                mSPHelper.setSpBoolean(Constant.IS_SETTING, true);
-//                            }
-//                        }).show();
                 getDialog().setTitle("输入你的邮箱")
                         .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                             @Override
@@ -136,5 +130,30 @@ public class SettingActivity extends BaseActivity implements FragmentCallback {
         AlertDialog.Builder builder = new AlertDialog.Builder(this).setView(dialog)
                 .setNegativeButton("取消", null);
         return builder;
+    }
+    @Override
+    protected void onActivityResult(final int requestCode, int resultCode, final Intent data) {
+        if (resultCode == RESULT_OK && requestCode == RESULT_LOAD_IMAGE) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("是否更改头像")
+                    .setNegativeButton("取消", null)
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mSPHelper.setSpBoolean(Constant.IS_SETTING, true);
+                            Glide.with(getApplicationContext())
+                                    .loadFromMediaStore(data.getData())
+                                    .asBitmap()
+                                    .into(new SimpleTarget<Bitmap>(75, 75) {
+                                        @Override
+                                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                            mCache.put(Constant.AVATAR_BITMAP, ACache.Utils.Bitmap2Bytes(resource), ACache.TIME_DAY * 30);
+                                        }
+                                    });
+                        }
+                    })
+                    .show();
+
+        }
     }
 }

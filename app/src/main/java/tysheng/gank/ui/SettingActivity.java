@@ -16,6 +16,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 
+import butterknife.BindString;
 import butterknife.BindView;
 import tysheng.gank.Constant;
 import tysheng.gank.R;
@@ -36,6 +37,11 @@ public class SettingActivity extends BaseActivity implements FragmentCallback {
     TextInputEditText mEditText;
     private static final int RESULT_LOAD_IMAGE = 88;
     ACache mCache;
+    @BindString(R.string.button_ok)
+    String ok;
+    @BindString(R.string.button_cancel)
+    String cancel;
+
     @Override
     public void initData() {
         setSupportActionBar(mToolbar);
@@ -59,6 +65,7 @@ public class SettingActivity extends BaseActivity implements FragmentCallback {
     public int getLayoutId() {
         return R.layout.activity_setting;
     }
+
     private void jumpIntent() {
         mSPHelper.setSpBoolean(Constant.IS_SETTING, false);
         //重启方法 1
@@ -72,6 +79,7 @@ public class SettingActivity extends BaseActivity implements FragmentCallback {
 //        startActivity(intent);
 //        finish();
     }
+
     @Override
     public void onBackPressed() {
         exit();
@@ -83,6 +91,7 @@ public class SettingActivity extends BaseActivity implements FragmentCallback {
         else
             jumpIntent();
     }
+
     @Override
     public void func1(String s) {
         switch (s) {
@@ -97,8 +106,8 @@ public class SettingActivity extends BaseActivity implements FragmentCallback {
                 startActivityForResult(i, RESULT_LOAD_IMAGE);
                 break;
             case "name":
-                getDialog().setTitle("输入你的姓名")
-                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                getDialog().setTitle(getString(R.string.check_name))
+                        .setPositiveButton(ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 mSPHelper.setSpString(Constant.USER_NAME, mEditText.getText().toString());
@@ -106,11 +115,10 @@ public class SettingActivity extends BaseActivity implements FragmentCallback {
                             }
                         })
                         .show();
-
                 break;
             case "email":
-                getDialog().setTitle("输入你的邮箱")
-                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                getDialog().setTitle(getString(R.string.check_email))
+                        .setPositiveButton(ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 mSPHelper.setSpString(Constant.USER_EMAIL, mEditText.getText().toString());
@@ -123,21 +131,21 @@ public class SettingActivity extends BaseActivity implements FragmentCallback {
                 break;
         }
     }
-    private AlertDialog.Builder getDialog(){
+
+    private AlertDialog.Builder getDialog() {
         LayoutInflater inflater = getLayoutInflater();
-        View   dialog = inflater.inflate(R.layout.dialog_edittext,null);
+        View dialog = inflater.inflate(R.layout.dialog_edittext, null);
         mEditText = (TextInputEditText) dialog.findViewById(R.id.editText);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this).setView(dialog)
-                .setNegativeButton("取消", null);
-        return builder;
+        return new AlertDialog.Builder(this).setView(dialog).setNegativeButton(cancel, null);
     }
+
     @Override
     protected void onActivityResult(final int requestCode, int resultCode, final Intent data) {
         if (resultCode == RESULT_OK && requestCode == RESULT_LOAD_IMAGE) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("是否更改头像")
-                    .setNegativeButton("取消", null)
-                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            builder.setTitle(getString(R.string.check_avatar))
+                    .setNegativeButton(cancel, null)
+                    .setPositiveButton(ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             mSPHelper.setSpBoolean(Constant.IS_SETTING, true);

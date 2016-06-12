@@ -9,6 +9,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -48,6 +49,7 @@ public class GalleryActivity extends BaseActivity implements Toolbar.OnMenuItemC
     private MyGalleryAdapter mAdapter;
     public static final String GALLERY_LIST = "GALLERY_LIST";
     private int mPosition;
+    protected boolean mIsHidden = false;
     String mUrl;
     String mTitle;
     @Override
@@ -126,6 +128,21 @@ public class GalleryActivity extends BaseActivity implements Toolbar.OnMenuItemC
                 break;
         }
         return true;
+    }
+    private void hideOrShow() {
+        mToolbar.animate()
+                .translationY(mIsHidden ? 0 : -mToolbar.getHeight())
+                .setInterpolator(new DecelerateInterpolator(2))
+                .start();
+        mIndicator.animate()
+                .translationY(mIsHidden ? 0 : -mIndicator.getHeight())
+                .setInterpolator(new DecelerateInterpolator(2))
+                .start();
+        mDesc.animate()
+                .translationY(mIsHidden ? 0 : -mDesc.getHeight())
+                .setInterpolator(new DecelerateInterpolator(2))
+                .start();
+        mIsHidden = !mIsHidden;
     }
     private void saveImageToGallery() {
         mUrl = mList.get(mViewPager.getCurrentItem()).url;

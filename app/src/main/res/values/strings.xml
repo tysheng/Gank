@@ -20,4 +20,12 @@
     <string name="no_more_data">没有更多数据了~</string>
     <string name="clear_cache">缓存已清除:)</string>
     <string name="sort">排序</string>
+
+
+    <string name="button_ok">确定</string>
+    <string name="button_cancel">取消</string>
+    <string name="check_avatar">是否更换头像?</string>
+    <string name="check_email">输入你的邮箱</string>
+    <string name="check_name">输入你的姓名</string>
+
 </resources>

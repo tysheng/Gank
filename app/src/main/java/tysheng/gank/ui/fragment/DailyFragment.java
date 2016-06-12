@@ -13,6 +13,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 
 import butterknife.BindString;
 import butterknife.BindView;
+import butterknife.OnClick;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -152,7 +153,12 @@ public class DailyFragment extends BaseFragment {
             }
         });
     }
-
+    @OnClick(R.id.floatingActionButton)
+    public void onClick() {
+        if (mLayoutManager.findLastCompletelyVisibleItemPosition() >= 30)
+            mRecyclerView.scrollToPosition(0);
+        else mRecyclerView.smoothScrollToPosition(0);
+    }
     private void getData(final int type, int page) {
         addSubscription(MyRetrofit.getGankApi(MyApplication.getInstance(), GankApi.BASE_URL)
                 .getCategory(FULI, AMOUNT, page)

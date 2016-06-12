@@ -78,12 +78,14 @@ public class DailyFragment extends BaseFragment {
         gank10 = mGankCategory;
 
         mAdapter = new DailyAdapter(mContext, mGankCategory.results);
+        mAdapter.openLoadMore(AMOUNT, true);
         mAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
             @Override
             public void onLoadMoreRequested() {
                 getData(LOAD, ++page);
             }
         });
+        mAdapter.openLoadAnimation(BaseQuickAdapter.SLIDEIN_BOTTOM);
         mAdapter.setOnRecyclerViewItemChildClickListener(new BaseQuickAdapter.OnRecyclerViewItemChildClickListener() {
             @Override
             public void onItemChildClick(BaseQuickAdapter baseQuickAdapter, View view, int i) {
@@ -153,12 +155,14 @@ public class DailyFragment extends BaseFragment {
             }
         });
     }
+
     @OnClick(R.id.floatingActionButton)
     public void onClick() {
         if (mLayoutManager.findLastCompletelyVisibleItemPosition() >= 30)
             mRecyclerView.scrollToPosition(0);
         else mRecyclerView.smoothScrollToPosition(0);
     }
+
     private void getData(final int type, int page) {
         addSubscription(MyRetrofit.getGankApi(MyApplication.getInstance(), GankApi.BASE_URL)
                 .getCategory(FULI, AMOUNT, page)
@@ -179,13 +183,14 @@ public class DailyFragment extends BaseFragment {
                     public void onNext(GankCategory bean) {
                         if (!bean.error) {
                             if (type == REFRESH) {
-                                mAdapter.getData().clear();
-                                mAdapter.getData().addAll(bean.results);
+                                //refresh
+                                mAdapter.setNewData(bean.results);
                                 mCache.put(Constant.CACHE_DAILY, bean, ACache.TIME_DAY * 2);
                             } else {
-                                mAdapter.getData().addAll(bean.results);
+                                //load
+                                mAdapter.notifyDataChangedAfterLoadMore(bean.results,true);
+                                mAdapter.openLoadMore(true);
                             }
-                            mAdapter.notifyDataSetChanged();
                             gank10 = bean;
                         } else
                             SnackbarUtil.showSnackbar(mCoordinatorLayout, getString(R.string.on_error));

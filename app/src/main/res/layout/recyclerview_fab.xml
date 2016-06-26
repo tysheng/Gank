@@ -19,6 +19,6 @@
         android:layout_gravity="bottom|end"
         app:layout_anchor="@id/recyclerView"
         app:layout_anchorGravity="bottom|right|end"
-        android:src="@drawable/ic_send_24dp" />
+        android:src="@drawable/ic_done_black_24dp" />
    </android.support.design.widget.CoordinatorLayout>
 

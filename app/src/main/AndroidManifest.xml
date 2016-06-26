@@ -33,6 +33,7 @@
             android:label="@string/setting">
         </activity>
         <activity android:name=".ui.SortActivity"></activity>
+        <activity android:name=".ui.PictureActivity"></activity>
     </application>
 
 </manifest>

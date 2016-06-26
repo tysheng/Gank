@@ -10,7 +10,11 @@
             android:defaultValue="false"
             android:summary="夜间模式"
             android:title="是否开启夜间模式" />
-
+        <CheckBoxPreference
+            android:key="gallery"
+            android:defaultValue="false"
+            android:summary="相册模式"
+            android:title="是否开启相册模式" />
     </tysheng.gank.widget.MyPreferenceCategory>
     <tysheng.gank.widget.MyPreferenceCategory android:title="账号设置">
         <Preference

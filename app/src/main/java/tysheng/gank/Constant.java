@@ -12,6 +12,7 @@ public interface Constant {
     String USER_NAME = "USER_NAME";
     String USER_EMAIL = "USER_EMAIL";
     String IS_SETTING = "IS_SETTING";
+    String IS_GALLERY = "IS_GALLERY";
     String THEME = "THEME";
 
     String CACHE_DAILY = "CACHE_DAILY";

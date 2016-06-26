@@ -7,7 +7,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.ViewTreeObserver;
+import android.view.ViewGroup;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 
@@ -27,6 +27,8 @@ import tysheng.gank.base.BaseFragment;
 import tysheng.gank.bean.GankCategory;
 import tysheng.gank.ui.DailyDetailActivity;
 import tysheng.gank.ui.GalleryActivity;
+import tysheng.gank.ui.PictureActivity;
+import tysheng.gank.utils.SPHelper;
 import tysheng.gank.utils.SnackbarUtil;
 import tysheng.gank.widget.ACache;
 
@@ -53,6 +55,7 @@ public class DailyFragment extends BaseFragment {
     GankCategory mGankCategory, gank10;
     ACache mCache;
     LinearLayoutManager mLayoutManager;
+    private boolean is_gallery;
 
     @Override
     protected void setTitle() {
@@ -70,14 +73,18 @@ public class DailyFragment extends BaseFragment {
 
     @Override
     protected void initData() {
+        SPHelper spHelper = new SPHelper(mContext);
+        is_gallery = spHelper.getSpBoolean(Constant.IS_GALLERY, false);
         initSwipe();
         mCache = ACache.get(mContext);
         mGankCategory = (GankCategory) mCache.getAsObject(Constant.CACHE_DAILY);
         if (mGankCategory == null)
             mGankCategory = new GankCategory();
         gank10 = mGankCategory;
+        View emptyView = getActivity().getLayoutInflater().inflate(R.layout.progressbar, (ViewGroup) mRecyclerView.getParent(), false);
 
         mAdapter = new DailyAdapter(mContext, mGankCategory.results);
+        mAdapter.setEmptyView(emptyView);
         mAdapter.openLoadMore(AMOUNT, true);
         mAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
             @Override
@@ -91,7 +98,11 @@ public class DailyFragment extends BaseFragment {
             public void onItemChildClick(BaseQuickAdapter baseQuickAdapter, View view, int i) {
                 switch (view.getId()) {
                     case R.id.imageView:
-                        Intent intent = GalleryActivity.newIntent(mContext, gank10, i % 10);
+                        Intent intent;
+                        if (is_gallery)
+                            intent = GalleryActivity.newIntent(mContext, gank10, i % 10);
+                        else
+                            intent = PictureActivity.newIntent(mContext, mAdapter.getItem(i).url, mAdapter.getItem(i).desc);
                         startActivity(intent);
                         break;
                     case R.id.textView:
@@ -136,14 +147,7 @@ public class DailyFragment extends BaseFragment {
     }
 
     private void initSwipe() {
-        mSwipeRefreshLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                mSwipeRefreshLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                mSwipeRefreshLayout.setRefreshing(true);
-                getData(REFRESH, page);
-            }
-        });
+        getData(REFRESH, page);
         mSwipeRefreshLayout.setColorSchemeResources(
                 android.R.color.holo_red_light,
                 android.R.color.holo_blue_light);
@@ -188,7 +192,7 @@ public class DailyFragment extends BaseFragment {
                                 mCache.put(Constant.CACHE_DAILY, bean, ACache.TIME_DAY * 2);
                             } else {
                                 //load
-                                mAdapter.notifyDataChangedAfterLoadMore(bean.results,true);
+                                mAdapter.notifyDataChangedAfterLoadMore(bean.results, true);
                                 mAdapter.openLoadMore(true);
                             }
                             gank10 = bean;

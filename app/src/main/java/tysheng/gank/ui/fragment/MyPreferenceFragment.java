@@ -19,8 +19,6 @@ import tysheng.gank.utils.SPHelper;
 public class MyPreferenceFragment extends PreferenceFragment {
     private FragmentCallback callback;
     private SPHelper mSPHelper;
-    public static final String ON = "on";
-    public static final String OFF = "off";
     private boolean changed = false;
 
     @Override
@@ -35,19 +33,20 @@ public class MyPreferenceFragment extends PreferenceFragment {
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
         String key = preference.getKey();
         switch (key) {
-//            case Constant.GANK_TIP:
-//                changed = !changed;
-//                if (((CheckBoxPreference) preference).isChecked())
-//                    mSPHelper.setSpString(Constant.GANK_TIP, ON);
-//                else
-//                    mSPHelper.setSpString(Constant.GANK_TIP, OFF);
-//                break;
             case "night":
                 changed = !changed;
                 if (((CheckBoxPreference) preference).isChecked())
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 else
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                mSPHelper.setSpBoolean(Constant.IS_SETTING, changed);
+                break;
+            case "gallery":
+                changed = !changed;
+                if (((CheckBoxPreference) preference).isChecked())
+                    mSPHelper.setSpBoolean(Constant.IS_GALLERY, true);
+                else
+                    mSPHelper.setSpBoolean(Constant.IS_GALLERY, false);
                 mSPHelper.setSpBoolean(Constant.IS_SETTING, changed);
                 break;
             default:

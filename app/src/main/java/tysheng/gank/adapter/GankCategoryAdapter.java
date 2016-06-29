@@ -15,7 +15,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import tysheng.gank.R;
-import tysheng.gank.bean.GankDaily;
 import tysheng.gank.bean.GankResult;
 import tysheng.gank.utils.StringUtil;
 import tysheng.gank.widget.SectionsDecoration;
@@ -39,16 +38,16 @@ public class GankCategoryAdapter
         this.context = context;
     }
 
-    public void add(GankDaily daily) {
-        if (daily.results.androidList != null) data.addAll(daily.results.androidList);
-        if (daily.results.iOSList != null) data.addAll(daily.results.iOSList);
-        if (daily.results.前端List != null) data.addAll(daily.results.前端List);
-        if (daily.results.appList != null) data.addAll(daily.results.appList);
-        if (daily.results.拓展资源List != null) data.addAll(daily.results.拓展资源List);
-        if (daily.results.瞎推荐List != null) data.addAll(daily.results.瞎推荐List);
-        if (daily.results.休息视频List != null) data.addAll(0, daily.results.休息视频List);
-        notifyDataSetChanged();
-    }
+//    public void add(GankDaily daily) {
+//        if (daily.results.androidList != null) data.addAll(daily.results.androidList);
+//        if (daily.results.iOSList != null) data.addAll(daily.results.iOSList);
+//        if (daily.results.前端List != null) data.addAll(daily.results.前端List);
+//        if (daily.results.appList != null) data.addAll(daily.results.appList);
+//        if (daily.results.拓展资源List != null) data.addAll(daily.results.拓展资源List);
+//        if (daily.results.瞎推荐List != null) data.addAll(daily.results.瞎推荐List);
+//        if (daily.results.休息视频List != null) data.addAll(0, daily.results.休息视频List);
+//        notifyDataSetChanged();
+//    }
 
     public void clear() {
         data.clear();

@@ -75,12 +75,16 @@ public class DailyFragment extends BaseFragment {
     protected void initData() {
         SPHelper spHelper = new SPHelper(mContext);
         is_gallery = spHelper.getSpBoolean(Constant.IS_GALLERY, false);
-        initSwipe();
         mCache = ACache.get(mContext);
         mGankCategory = (GankCategory) mCache.getAsObject(Constant.CACHE_DAILY);
-        if (mGankCategory == null)
+        if (mGankCategory == null){
             mGankCategory = new GankCategory();
+            getData(REFRESH, page);
+        }
+
         gank10 = mGankCategory;
+
+        //progressBar
         View emptyView = getActivity().getLayoutInflater().inflate(R.layout.progressbar, (ViewGroup) mRecyclerView.getParent(), false);
 
         mAdapter = new DailyAdapter(mContext, mGankCategory.results);
@@ -113,6 +117,7 @@ public class DailyFragment extends BaseFragment {
             }
         });
         initRecyclerView();
+        initSwipe();
     }
 
     private void initRecyclerView() {
@@ -147,7 +152,6 @@ public class DailyFragment extends BaseFragment {
     }
 
     private void initSwipe() {
-        getData(REFRESH, page);
         mSwipeRefreshLayout.setColorSchemeResources(
                 android.R.color.holo_red_light,
                 android.R.color.holo_blue_light);

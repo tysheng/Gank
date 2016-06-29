@@ -39,7 +39,7 @@ public class SectionsDecoration extends RecyclerView.ItemDecoration {
             widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(parent.getWidth(), View.MeasureSpec.EXACTLY);
         }
 
-        final int position = parent.getChildPosition(view);
+        final int position = parent.getChildAdapterPosition(view);
         outRect.top += getViewHolder(adapter, parent, adapter.getHeaderId(position), position).itemView.getMeasuredHeight();
     }
 
@@ -55,7 +55,7 @@ public class SectionsDecoration extends RecyclerView.ItemDecoration {
         final RecyclerView.LayoutManager layoutManager = parent.getLayoutManager();
         for (int i = 0, childCount = parent.getChildCount(); i < childCount; i++) {
             final View view = parent.getChildAt(i);
-            final int position = parent.getChildPosition(view);
+            final int position = parent.getChildAdapterPosition(view);
             final long headerId = adapter.getHeaderId(position);
             if (!hasHeader(adapter, view, parent)) {
                 if (!drawnHeaderIds.contains(headerId)) {
@@ -82,7 +82,7 @@ public class SectionsDecoration extends RecyclerView.ItemDecoration {
     }
 
     private boolean hasHeader(Adapter adapter, View view, RecyclerView parent) {
-        final int adapterPosition = parent.getChildPosition(view);
+        final int adapterPosition = parent.getChildAdapterPosition(view);
         if (adapterPosition == 0) {
             return true;
         }

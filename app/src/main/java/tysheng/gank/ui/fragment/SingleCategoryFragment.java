@@ -6,7 +6,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.ViewTreeObserver;
+import android.widget.ProgressBar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +24,7 @@ import tysheng.gank.api.MyRetrofit;
 import tysheng.gank.base.BaseFragment;
 import tysheng.gank.bean.GankCategory;
 import tysheng.gank.bean.GankResult;
+import tysheng.gank.ui.PictureActivity;
 import tysheng.gank.ui.WebVideoActivity;
 import tysheng.gank.ui.WebviewActivity;
 import tysheng.gank.utils.SnackbarUtil;
@@ -39,11 +40,13 @@ public class SingleCategoryFragment extends BaseFragment {
     SwipeRefreshLayout mSwipeRefreshLayout;
     @BindView(R.id.recyclerView)
     RecyclerView mRecyclerView;
-
+    @BindView(R.id.progress_bar)
+    ProgressBar mProgressBar;
     GankCategoryAdapter mAdapter;
     private String typeName;
     GankCategory mGankCategory;
     private List<GankResult> data;
+    LinearLayoutManager mLayoutManager;
 
     public SingleCategoryFragment(String typeName) {
         this.typeName = typeName;
@@ -64,15 +67,14 @@ public class SingleCategoryFragment extends BaseFragment {
 
     @Override
     protected void initData() {
-        initSwipe();
         mCache = ACache.get(mContext);
         mGankCategory = (GankCategory) mCache.getAsObject(typeName);
         mRecyclerView.setHasFixedSize(true);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
-        mRecyclerView.setLayoutManager(layoutManager);
+        mLayoutManager = new LinearLayoutManager(mContext);
+        mRecyclerView.setLayoutManager(mLayoutManager);
         if (!typeName.equals("福利"))
             mRecyclerView.addItemDecoration(new SectionsDecoration(true));
-        mRecyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(layoutManager) {
+        mRecyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(mLayoutManager) {
             @Override
             public void onLoadMore(int current_page) {
                 getData(typeName, current_page);
@@ -81,14 +83,16 @@ public class SingleCategoryFragment extends BaseFragment {
         if (mGankCategory == null) {
             mGankCategory = new GankCategory();
             data = new ArrayList<>();
-
+            getData(typeName, page = 1);
         } else {
             data.addAll(mGankCategory.results.subList(0, 9));
+            mProgressBar.setVisibility(View.GONE);
         }
         mAdapter = new GankCategoryAdapter(mContext, data);
         mRecyclerView.setAdapter(mAdapter);
 
         setItemClick();
+        initSwipe();
     }
 
     public static SingleCategoryFragment newInstance(String typeName) {
@@ -96,14 +100,14 @@ public class SingleCategoryFragment extends BaseFragment {
     }
 
     private void initSwipe() {
-        mSwipeRefreshLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                mSwipeRefreshLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                mSwipeRefreshLayout.setRefreshing(true);
-                getData(typeName, page = 1);
-            }
-        });
+//        mSwipeRefreshLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+//            @Override
+//            public void onGlobalLayout() {
+//                mSwipeRefreshLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+//                mSwipeRefreshLayout.setRefreshing(true);
+//                getData(typeName, page = 1);
+//            }
+//        });
         mSwipeRefreshLayout.setColorSchemeResources(
                 android.R.color.holo_red_light,
                 android.R.color.holo_blue_light);
@@ -121,9 +125,9 @@ public class SingleCategoryFragment extends BaseFragment {
             @Override
             public void onClickListener(View view, int position) {
                 if (data.get(position).type.equals("福利")) {
-//                    Intent intent = PictureActivity.newIntent(frmContext, data.get(position).url,
-//                            data.get(position).desc);
-//                    startActivity(intent);
+                    Intent intent = PictureActivity.newIntent(mContext, data.get(position).url,
+                            data.get(position).desc);
+                    startActivity(intent);
                 } else if (data.get(position).type.equals("休息视频")) {
                     Intent intent = new Intent(getActivity(), WebVideoActivity.class);
                     intent.putExtra(WebVideoActivity.URL, data.get(position).url);
@@ -153,6 +157,7 @@ public class SingleCategoryFragment extends BaseFragment {
                     @Override
                     public void onError(Throwable e) {
                         stopSwipe();
+                        SnackbarUtil.showSnackbar(mSwipeRefreshLayout, getString(R.string.net_data_error));
                     }
 
                     @Override
@@ -167,9 +172,10 @@ public class SingleCategoryFragment extends BaseFragment {
                                 mGankCategory.results.addAll(gankCategory.results);
                                 mCache.put(typeName, mGankCategory, 2 * ACache.TIME_DAY);
                             }
-
+                            mProgressBar.setVisibility(View.GONE);
                             data.addAll(gankCategory.results);
                             mAdapter.notifyDataSetChanged();
+
                         } else {
                             SnackbarUtil.showSnackbar(mSwipeRefreshLayout, getString(R.string.net_data_error));
                         }

@@ -1,9 +1,12 @@
 package tysheng.gank.ui;
 
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.content.IntentCompat;
@@ -31,6 +34,7 @@ import tysheng.gank.widget.ACache;
  * Created by shengtianyang on 16/5/3.
  */
 public class SettingActivity extends BaseActivity implements FragmentCallback {
+    private static final int CAMERA_WITH_DATA = 77;
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
     SPHelper mSPHelper;
@@ -101,9 +105,24 @@ public class SettingActivity extends BaseActivity implements FragmentCallback {
                 SnackbarUtil.showSnackbar(mToolbar, getString(R.string.clear_cache));
                 break;
             case "avatar":
-                Intent i = new Intent(Intent.ACTION_PICK, null);
-                i.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
-                startActivityForResult(i, RESULT_LOAD_IMAGE);
+                new AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.check_avatar))
+                        .setItems(new String[]{"拍照", "相册"}, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which) {
+                                    case 0:
+                                        takePhoto();
+                                        break;
+                                    case 1:
+                                        choosePhoto();
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        })
+                        .show();
                 break;
             case "name":
                 getDialog().setTitle(getString(R.string.check_name))
@@ -132,6 +151,21 @@ public class SettingActivity extends BaseActivity implements FragmentCallback {
         }
     }
 
+    private void choosePhoto() {
+        Intent i = new Intent(Intent.ACTION_PICK, null);
+        i.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+        startActivityForResult(i, RESULT_LOAD_IMAGE);
+    }
+
+    private void takePhoto() {
+        try {
+            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            startActivityForResult(cameraIntent, CAMERA_WITH_DATA);
+        } catch (ActivityNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     private AlertDialog.Builder getDialog() {
         LayoutInflater inflater = getLayoutInflater();
         View dialog = inflater.inflate(R.layout.dialog_edittext, null);
@@ -141,27 +175,46 @@ public class SettingActivity extends BaseActivity implements FragmentCallback {
 
     @Override
     protected void onActivityResult(final int requestCode, int resultCode, final Intent data) {
-        if (resultCode == RESULT_OK && requestCode == RESULT_LOAD_IMAGE) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(getString(R.string.check_avatar))
-                    .setNegativeButton(cancel, null)
-                    .setPositiveButton(ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            mSPHelper.setSpBoolean(Constant.IS_SETTING, true);
-                            Glide.with(getApplicationContext())
-                                    .loadFromMediaStore(data.getData())
-                                    .asBitmap()
-                                    .into(new SimpleTarget<Bitmap>(75, 75) {
-                                        @Override
-                                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                                            mCache.put(Constant.AVATAR_BITMAP, ACache.Utils.Bitmap2Bytes(resource), ACache.TIME_DAY * 30);
-                                        }
-                                    });
-                        }
-                    })
-                    .show();
+        if (resultCode == RESULT_OK) {
+            mSPHelper.setSpBoolean(Constant.IS_SETTING, true);
+            switch (requestCode) {
+                case RESULT_LOAD_IMAGE:
+                    Glide.with(getApplicationContext())
+                            .loadFromMediaStore(data.getData())
+                            .asBitmap()
+                            .into(new SimpleTarget<Bitmap>(75, 75) {
+                                @Override
+                                public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                    mCache.put(Constant.AVATAR_BITMAP, ACache.Utils.Bitmap2Bytes(resource), ACache.TIME_DAY * 120);
+                                }
+                            });
+                    break;
+                case CAMERA_WITH_DATA:
+                    Bundle bundle = data.getExtras();
+                    Bitmap bitMap = (Bitmap) bundle.get("data");
+                    if (bitMap != null)
+                        bitMap.recycle();
+                    bitMap = (Bitmap) data.getExtras().get("data");
+                    int width = bitMap.getWidth();
+                    int height = bitMap.getHeight();
 
+                    // 设置想要的大小
+                    int newWidth = 75;
+                    int newHeight = 75;
+                    // 计算缩放比例
+                    float scaleWidth = ((float) newWidth) / width;
+                    float scaleHeight = ((float) newHeight) / height;
+                    // 取得想要缩放的matrix参数
+                    Matrix matrix = new Matrix();
+                    matrix.postScale(scaleWidth, scaleHeight);
+                    // 得到新的图片
+                    bitMap = Bitmap.createBitmap(bitMap, 0, 0, width, height, matrix,
+                            true);
+                    mCache.put(Constant.AVATAR_BITMAP, bitMap, ACache.TIME_DAY * 120);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

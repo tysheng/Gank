@@ -2,9 +2,12 @@ package tysheng.gank.ui.fragment;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -42,23 +45,59 @@ public class SingleCategoryFragment extends BaseFragment {
     RecyclerView mRecyclerView;
     @BindView(R.id.progress_bar)
     ProgressBar mProgressBar;
-    GankCategoryAdapter mAdapter;
+    private GankCategoryAdapter mAdapter;
     private String typeName;
-    GankCategory mGankCategory;
+    private GankCategory mGankCategory;
     private List<GankResult> data;
-    LinearLayoutManager mLayoutManager;
+    private LinearLayoutManager mLayoutManager;
+    private ACache mCache;
+    private int page = 1;
+    private static final String TAG = "tag";
+
 
     public SingleCategoryFragment(String typeName) {
         this.typeName = typeName;
     }
 
-    ACache mCache;
-    int page = 1;
+    public SingleCategoryFragment() {
+    }
 
     @Override
     protected void setTitle() {
 
     }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            typeName = savedInstanceState.getString(TAG);
+//            SystemUtil.d("onCreate not null"+typeName);
+
+        }
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString(TAG, typeName);
+        super.onSaveInstanceState(outState);
+//        SystemUtil.d("onSaveInstanceState "+typeName);
+    }
+
+//    @Override
+//    public void onDestroy() {
+//        super.onDestroy();
+//        if (typeName != null)
+//            SystemUtil.d("onDestroy" + typeName);
+//    }
+//
+//    @Override
+//    public void onDetach() {
+//        super.onDetach();
+//        if (typeName != null)
+//            SystemUtil.d("onDetach" + typeName);
+//    }
 
     @Override
     protected int getLayoutId() {
@@ -72,7 +111,7 @@ public class SingleCategoryFragment extends BaseFragment {
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(mContext);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        if (!typeName.equals("福利"))
+        if (!TextUtils.equals(typeName, "福利"))
             mRecyclerView.addItemDecoration(new SectionsDecoration(true));
         mRecyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(mLayoutManager) {
             @Override
@@ -100,14 +139,6 @@ public class SingleCategoryFragment extends BaseFragment {
     }
 
     private void initSwipe() {
-//        mSwipeRefreshLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//            @Override
-//            public void onGlobalLayout() {
-//                mSwipeRefreshLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-//                mSwipeRefreshLayout.setRefreshing(true);
-//                getData(typeName, page = 1);
-//            }
-//        });
         mSwipeRefreshLayout.setColorSchemeResources(
                 android.R.color.holo_red_light,
                 android.R.color.holo_blue_light);
@@ -144,7 +175,7 @@ public class SingleCategoryFragment extends BaseFragment {
     }
 
     private void getData(String category, final int page) {
-        mSubscription.add(MyRetrofit.getGankApi(MyApplication.getInstance(), GankApi.BASE_URL)
+        addSubscription(MyRetrofit.getGankApi(MyApplication.getInstance(), GankApi.BASE_URL)
                 .getCategory(category, 10, page)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -183,7 +214,6 @@ public class SingleCategoryFragment extends BaseFragment {
 
                     }
                 }));
-
 
     }
 

@@ -8,6 +8,8 @@
     <string name="setting">设置</string>
     <string name="gank_daily">每日</string>
     <string name="gank_category">分类</string>
+    <string name="theme">切换主题</string>
+
 
     <string name="user_name">Ty Sheng</string>
     <string name="user_email">tyshengsx@gmail.com</string>
@@ -27,5 +29,6 @@
     <string name="check_avatar">选择头像</string>
     <string name="check_email">输入你的邮箱</string>
     <string name="check_name">输入你的姓名</string>
+
 
 </resources>

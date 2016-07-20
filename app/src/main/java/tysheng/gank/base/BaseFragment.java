@@ -23,14 +23,15 @@ import rx.subscriptions.CompositeSubscription;
 public abstract class BaseFragment extends Fragment {
     protected View mRootView;
     protected Context mContext;
-    protected CompositeSubscription mSubscription;
-    protected Unbinder mUnbinder;
+    private CompositeSubscription mSubscription;
+    private Unbinder mUnbinder;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = getActivity();
     }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -42,7 +43,7 @@ public abstract class BaseFragment extends Fragment {
         return mRootView;
     }
 
-    public void addSubscription(Subscription s) {
+    protected void addSubscription(Subscription s) {
         if (this.mSubscription == null) {
             this.mSubscription = new CompositeSubscription();
         }

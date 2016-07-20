@@ -3,6 +3,7 @@ package tysheng.gank.utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 /**
  * Created by shengtianyang on 16/5/2.
@@ -18,5 +19,12 @@ public class SystemUtil {
             }
         }
         return false;
+    }
+
+    public static void d (String s){
+        Log.d("sty",s);
+    }
+    public static void d (int s){
+        Log.d("sty",String.valueOf(s));
     }
 }

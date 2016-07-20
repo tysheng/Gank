@@ -3,6 +3,7 @@ package tysheng.gank.base;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -16,7 +17,7 @@ import rx.subscriptions.CompositeSubscription;
 /**
  * Created by shengtianyang on 16/2/22.
  */
-public abstract class BaseActivity extends AppCompatActivity {
+public abstract class BaseFragmentActivity extends AppCompatActivity {
 
     private CompositeSubscription mSubscription;
 
@@ -26,9 +27,15 @@ public abstract class BaseActivity extends AppCompatActivity {
 //        setTheme(SPHelper.getTheme(this));
         setContentView(getLayoutId());
 
+        if (savedInstanceState != null) {
+            restoreFragment(savedInstanceState);
+        }
+
         ButterKnife.bind(this);
         initData();
     }
+
+    protected abstract void restoreFragment(@NonNull Bundle savedInstanceState);
 
     protected void addSubscription(Subscription s) {
         if (this.mSubscription == null) {

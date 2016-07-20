@@ -14,7 +14,7 @@ import java.util.List;
 public class GankViewPagerAdapter extends FragmentStatePagerAdapter {
 
     private List<Fragment> mFragments = null;
-    private  List<String> mFragmentTitles = null;
+    private List<String> mFragmentTitles = null;
     private FragmentManager mFragmentManager;
 
 
@@ -24,13 +24,21 @@ public class GankViewPagerAdapter extends FragmentStatePagerAdapter {
         mFragmentTitles = new ArrayList<>();
         mFragmentManager = fm;
     }
+
     public void addFragment(Fragment fragment, String title) {
         mFragments.add(fragment);
         mFragmentTitles.add(title);
     }
-    public void clear(){
+
+    public void addFragments(List<Fragment> fragments, List<String> titles) {
+        mFragments.addAll(fragments);
+        mFragmentTitles.addAll(titles);
+        notifyDataSetChanged();
+    }
+
+    public void clear() {
         FragmentTransaction ft = mFragmentManager.beginTransaction();
-        for(Fragment f:this.mFragments){
+        for (Fragment f : this.mFragments) {
             ft.remove(f);
         }
         ft.commit();
@@ -40,6 +48,7 @@ public class GankViewPagerAdapter extends FragmentStatePagerAdapter {
         mFragmentTitles.clear();
 
     }
+
     @Override
     public Fragment getItem(int position) {
         return mFragments.get(position);
@@ -48,6 +57,11 @@ public class GankViewPagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public int getCount() {
         return mFragments.size();
+    }
+
+    @Override
+    public int getItemPosition(Object object) {
+        return POSITION_NONE;
     }
 
     @Override

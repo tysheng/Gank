@@ -1,5 +1,7 @@
 package tysheng.gank.ui;
 
+import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -19,10 +21,11 @@ import com.bumptech.glide.Glide;
 import butterknife.BindView;
 import tysheng.gank.Constant;
 import tysheng.gank.R;
-import tysheng.gank.base.BaseActivity;
+import tysheng.gank.base.BaseFragmentActivity;
 import tysheng.gank.ui.fragment.CategoryFragment;
 import tysheng.gank.ui.fragment.DailyFragment;
 import tysheng.gank.utils.FixUtil;
+import tysheng.gank.utils.NightModeHelper;
 import tysheng.gank.utils.SPHelper;
 import tysheng.gank.utils.SnackbarUtil;
 import tysheng.gank.utils.SystemUtil;
@@ -30,7 +33,7 @@ import tysheng.gank.utils.TimeUtil;
 import tysheng.gank.widget.ACache;
 import tysheng.gank.widget.GlideCircleTransform;
 
-public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends BaseFragmentActivity implements NavigationView.OnNavigationItemSelectedListener {
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
     @BindView(R.id.drawer_layout)
@@ -46,10 +49,28 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private DailyFragment mDailyFragment;
     private CategoryFragment mCategoryFragment;
     private Fragment currentFragment;
+    //日夜模式切换
+    private NightModeHelper mNightModeHelper;
+    private static final String TAG = "tag";
 
     @Override
     public int getLayoutId() {
         return R.layout.activity_main;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        //do sth
+        outState.putString(TAG, currentFragment.getTag());
+        super.onSaveInstanceState(outState);
+//        SystemUtil.d(getClass().getSimpleName() + " onSaveInstanceState" + outState.toString());
+    }
+
+    //这个方法很少用
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+//        SystemUtil.d(getClass().getSimpleName() + " onRestoreInstanceState" + savedInstanceState.toString());
     }
 
     @Override
@@ -60,12 +81,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         if (!SystemUtil.isNetworkConnected(this))
             SnackbarUtil.showSnackbar(mCoordinatorLayout, getString(R.string.no_network_connected));
+
         mManager = getSupportFragmentManager();
-        mDailyFragment = DailyFragment.newInstance();
-        mCategoryFragment = CategoryFragment.newInstance();
-        currentFragment = mDailyFragment;
-        jumpFragment(null, mDailyFragment, R.id.frameLayout, DailyFragment.class.getName());
+
+        if (currentFragment == null)
+            currentFragment = DailyFragment.newInstance();
+        mManager.beginTransaction()
+                .replace(R.id.frameLayout, currentFragment)
+                .commit();
     }
+
 
     private void initToolbar() {
         setSupportActionBar(mToolbar);
@@ -77,6 +102,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
 
     private void initNav() {
+        mNightModeHelper = new NightModeHelper(this);
         mNavigationView.setNavigationItemSelectedListener(this);
         View headerView = mNavigationView.getHeaderView(0);
 
@@ -101,7 +127,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         SPHelper spHelper = new SPHelper(this);
         name.setText(spHelper.getSpString(Constant.USER_NAME, getString(R.string.user_name)));
         email.setText(spHelper.getSpString(Constant.USER_EMAIL, getString(R.string.user_email)));
-
     }
 
     @Override
@@ -125,6 +150,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 if (!(currentFragment instanceof CategoryFragment))
                     jumpFragment(currentFragment, mCategoryFragment, R.id.frameLayout, CategoryFragment.class.getName());
                 currentFragment = mCategoryFragment;
+                break;
+            case R.id.nav_theme:
+                mNightModeHelper.toggle();
                 break;
             default:
                 break;
@@ -158,6 +186,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
 
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    protected void restoreFragment(@NonNull Bundle savedInstanceState) {
+        currentFragment = getSupportFragmentManager().findFragmentByTag(savedInstanceState.getString(TAG));
+
     }
 
     @Override

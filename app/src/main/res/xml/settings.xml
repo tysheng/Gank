@@ -5,11 +5,11 @@
             <!--android:key="theme"-->
             <!--android:summary="选择主题颜色"-->
             <!--android:title="主题" />-->
-        <CheckBoxPreference
-            android:key="night"
-            android:defaultValue="false"
-            android:summary="夜间模式"
-            android:title="是否开启夜间模式" />
+        <!--<CheckBoxPreference-->
+            <!--android:key="night"-->
+            <!--android:defaultValue="false"-->
+            <!--android:summary="夜间模式"-->
+            <!--android:title="是否开启夜间模式" />-->
         <CheckBoxPreference
             android:key="gallery"
             android:defaultValue="false"

@@ -3,7 +3,11 @@ package tysheng.gank.ui.fragment;
 import android.app.Activity;
 import android.content.Intent;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindString;
 import butterknife.BindView;
@@ -27,10 +31,11 @@ public class CategoryFragment extends BaseFragment {
     ViewPager mViewPager;
     @BindString(R.string.gank_category)
     String mString;
-    public static final int REQUEST_CODE = 80;
+    private static final int REQUEST_CODE = 80;
     private GankViewPagerAdapter mAdapter;
-    GankViewPagerItem mItem;
-    ACache mCache;
+    private GankViewPagerItem mItem;
+    private ACache mCache;
+
     @Override
     protected void setTitle() {
         getActivity().setTitle(mString);
@@ -40,6 +45,7 @@ public class CategoryFragment extends BaseFragment {
     protected int getLayoutId() {
         return R.layout.fragment_category;
     }
+
     public static CategoryFragment newInstance() {
         return new CategoryFragment();
     }
@@ -59,12 +65,13 @@ public class CategoryFragment extends BaseFragment {
         mViewPager.setAdapter(mAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
         mTabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
-
     }
+
     @OnClick(R.id.imageView)
     public void onClick() {
         startActivityForResult(new Intent(mContext, SortActivity.class), REQUEST_CODE);
     }
+
     private void getCache() {
         mCache = ACache.get(mContext);
         mItem = (GankViewPagerItem) mCache.getAsObject(Constant.CACHE_GANK_VIEWPAGER_ITEM);
@@ -74,7 +81,7 @@ public class CategoryFragment extends BaseFragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK&& requestCode == REQUEST_CODE) {
+        if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE) {
             onRefresh();
         }
     }
@@ -83,14 +90,20 @@ public class CategoryFragment extends BaseFragment {
         getCache();
 
         mAdapter.clear();
-        mTabLayout.removeAllTabs();
-        mViewPager.removeAllViews();
+//        mTabLayout.removeAllTabs();
+//        mViewPager.removeAllViews();
+//        for (String str : mItem.mList) {
+//            mAdapter.addFragment(SingleCategoryFragment.newInstance(str), str);
+//        }
+//        mViewPager.setAdapter(mAdapter);
+//        mAdapter.notifyDataSetChanged();
+//        mTabLayout.setupWithViewPager(mViewPager);
+//        mViewPager.setCurrentItem(0);
+        List<Fragment> list = new ArrayList<>();
         for (String str : mItem.mList) {
-            mAdapter.addFragment(SingleCategoryFragment.newInstance(str), str);
+            list.add(SingleCategoryFragment.newInstance(str));
         }
-        mViewPager.setAdapter(mAdapter);
-        mAdapter.notifyDataSetChanged();
-        mTabLayout.setupWithViewPager(mViewPager);
+        mAdapter.addFragments(list,mItem.mList);
         mViewPager.setCurrentItem(0);
     }
 }

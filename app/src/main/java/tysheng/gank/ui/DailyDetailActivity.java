@@ -15,10 +15,8 @@ import butterknife.OnClick;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
-import tysheng.gank.MyApplication;
 import tysheng.gank.R;
 import tysheng.gank.adapter.GankDailyDetailAdapter;
-import tysheng.gank.api.GankApi;
 import tysheng.gank.api.MyRetrofit;
 import tysheng.gank.base.BaseActivity;
 import tysheng.gank.bean.GankDaily;
@@ -80,7 +78,7 @@ public class DailyDetailActivity extends BaseActivity {
     }
 
     private void getData(String[] date) {
-        MyRetrofit.getGankApi(MyApplication.getInstance(), GankApi.BASE_URL)
+        MyRetrofit.getGankApi()
                 .getDaily(date[0], date[1], date[2])
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

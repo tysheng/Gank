@@ -60,17 +60,8 @@ public class MainActivity extends BaseFragmentActivity implements NavigationView
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        //do sth
         outState.putString(TAG, currentFragment.getTag());
         super.onSaveInstanceState(outState);
-//        SystemUtil.d(getClass().getSimpleName() + " onSaveInstanceState" + outState.toString());
-    }
-
-    //这个方法很少用
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-//        SystemUtil.d(getClass().getSimpleName() + " onRestoreInstanceState" + savedInstanceState.toString());
     }
 
     @Override
@@ -90,7 +81,6 @@ public class MainActivity extends BaseFragmentActivity implements NavigationView
                 .replace(R.id.frameLayout, currentFragment)
                 .commit();
     }
-
 
     private void initToolbar() {
         setSupportActionBar(mToolbar);

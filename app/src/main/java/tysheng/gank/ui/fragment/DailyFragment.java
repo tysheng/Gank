@@ -16,12 +16,11 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 import tysheng.gank.Constant;
-import tysheng.gank.MyApplication;
 import tysheng.gank.R;
 import tysheng.gank.adapter.DailyAdapter;
-import tysheng.gank.api.GankApi;
 import tysheng.gank.api.MyRetrofit;
 import tysheng.gank.base.BaseFragment;
 import tysheng.gank.bean.GankCategory;
@@ -46,15 +45,15 @@ public class DailyFragment extends BaseFragment {
     SwipeRefreshLayout mSwipeRefreshLayout;
     @BindString(R.string.gank_daily)
     String mString;
-    final String FULI = "福利";
-    final int AMOUNT = 10;
-    final int REFRESH = 0;
-    final int LOAD = 1;
+    private static final String FULI = "福利";
+    private static final int AMOUNT = 10;
+    private static final int REFRESH = 0;
+    private static final int LOAD = 1;
     private int page = 1;
-    DailyAdapter mAdapter;
-    GankCategory mGankCategory, gank10;
-    ACache mCache;
-    LinearLayoutManager mLayoutManager;
+    private DailyAdapter mAdapter;
+    private GankCategory mGankCategory, gank10;
+    private ACache mCache;
+    private LinearLayoutManager mLayoutManager;
     private boolean is_gallery;
 
     @Override
@@ -77,7 +76,7 @@ public class DailyFragment extends BaseFragment {
         is_gallery = spHelper.getSpBoolean(Constant.IS_GALLERY, false);
         mCache = ACache.get(mContext);
         mGankCategory = (GankCategory) mCache.getAsObject(Constant.CACHE_DAILY);
-        if (mGankCategory == null){
+        if (mGankCategory == null) {
             mGankCategory = new GankCategory();
             getData(REFRESH, page);
         }
@@ -172,19 +171,25 @@ public class DailyFragment extends BaseFragment {
     }
 
     private void getData(final int type, int page) {
-        addSubscription(MyRetrofit.getGankApi(MyApplication.getInstance(), GankApi.BASE_URL)
+        addSubscription(MyRetrofit.getGankApi()
                 .getCategory(FULI, AMOUNT, page)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnTerminate(new Action0() {
+                    @Override
+                    public void call() {
+                        mSwipeRefreshLayout.setRefreshing(false);
+                    }
+                })
                 .subscribe(new Subscriber<GankCategory>() {
                     @Override
                     public void onCompleted() {
-                        mSwipeRefreshLayout.setRefreshing(false);
+
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        mSwipeRefreshLayout.setRefreshing(false);
+                        SnackbarUtil.showSnackbar(mCoordinatorLayout, getString(R.string.on_error));
                     }
 
                     @Override
@@ -201,7 +206,7 @@ public class DailyFragment extends BaseFragment {
                             }
                             gank10 = bean;
                         } else
-                            SnackbarUtil.showSnackbar(mCoordinatorLayout, getString(R.string.on_error));
+                            onError(null);
                     }
                 }));
     }

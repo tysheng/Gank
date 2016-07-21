@@ -17,12 +17,11 @@ import java.util.List;
 import butterknife.BindView;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.schedulers.Schedulers;
-import tysheng.gank.MyApplication;
 import tysheng.gank.R;
 import tysheng.gank.adapter.EndlessRecyclerOnScrollListener;
 import tysheng.gank.adapter.GankCategoryAdapter;
-import tysheng.gank.api.GankApi;
 import tysheng.gank.api.MyRetrofit;
 import tysheng.gank.base.BaseFragment;
 import tysheng.gank.bean.GankCategory;
@@ -52,7 +51,7 @@ public class SingleCategoryFragment extends BaseFragment {
     private LinearLayoutManager mLayoutManager;
     private ACache mCache;
     private int page = 1;
-    private static final String TAG = "tag";
+    private final String TAG = "tag";
 
 
     public SingleCategoryFragment(String typeName) {
@@ -70,34 +69,16 @@ public class SingleCategoryFragment extends BaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
+        if (savedInstanceState != null && TextUtils.isEmpty(typeName)) {
             typeName = savedInstanceState.getString(TAG);
-//            SystemUtil.d("onCreate not null"+typeName);
-
         }
-
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putString(TAG, typeName);
         super.onSaveInstanceState(outState);
-//        SystemUtil.d("onSaveInstanceState "+typeName);
     }
-
-//    @Override
-//    public void onDestroy() {
-//        super.onDestroy();
-//        if (typeName != null)
-//            SystemUtil.d("onDestroy" + typeName);
-//    }
-//
-//    @Override
-//    public void onDetach() {
-//        super.onDetach();
-//        if (typeName != null)
-//            SystemUtil.d("onDetach" + typeName);
-//    }
 
     @Override
     protected int getLayoutId() {
@@ -169,25 +150,28 @@ public class SingleCategoryFragment extends BaseFragment {
                     intent.putExtra(WebviewActivity.TITLE, data.get(position).desc);
                     startActivity(intent);
                 }
-
             }
         });
     }
 
     private void getData(String category, final int page) {
-        addSubscription(MyRetrofit.getGankApi(MyApplication.getInstance(), GankApi.BASE_URL)
+        addSubscription(MyRetrofit.getGankApi()
                 .getCategory(category, 10, page)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<GankCategory>() {
+                .retry(1)
+                .doOnTerminate(new Action0() {
                     @Override
-                    public void onCompleted() {
+                    public void call() {
                         stopSwipe();
                     }
+                })
+                .subscribe(new Subscriber<GankCategory>() {
+                    @Override
+                    public void onCompleted() {}
 
                     @Override
                     public void onError(Throwable e) {
-                        stopSwipe();
                         SnackbarUtil.showSnackbar(mSwipeRefreshLayout, getString(R.string.net_data_error));
                     }
 
@@ -197,7 +181,6 @@ public class SingleCategoryFragment extends BaseFragment {
                             SnackbarUtil.showSnackbar(mSwipeRefreshLayout, getString(R.string.no_more_data));
                             return;
                         }
-
                         if (!gankCategory.error) {
                             if (page == 1 && gankCategory.results.size() < 5) {
                                 mGankCategory.results.addAll(gankCategory.results);
@@ -206,12 +189,9 @@ public class SingleCategoryFragment extends BaseFragment {
                             mProgressBar.setVisibility(View.GONE);
                             data.addAll(gankCategory.results);
                             mAdapter.notifyDataSetChanged();
-
                         } else {
-                            SnackbarUtil.showSnackbar(mSwipeRefreshLayout, getString(R.string.net_data_error));
+                            onError(null);
                         }
-
-
                     }
                 }));
 

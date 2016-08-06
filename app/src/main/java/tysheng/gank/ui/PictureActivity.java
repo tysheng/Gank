@@ -1,15 +1,16 @@
 package tysheng.gank.ui;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Bundle;
 import android.os.Environment;
-import android.support.v7.widget.Toolbar;
-import android.view.MenuItem;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
-import android.view.animation.DecelerateInterpolator;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -30,24 +31,28 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 /**
  * Created by shengtianyang on 16/3/27.
  */
-public class PictureActivity extends BaseActivity implements PhotoViewAttacher.OnViewTapListener, Toolbar.OnMenuItemClickListener {
+public class PictureActivity extends BaseActivity  {
     @BindView(R.id.imageView)
     ImageView mImageView;
     public static final String EXTRA_IMAGE_URL = "image_url";
     public static final String EXTRA_IMAGE_TITLE = "image_title";
-    @BindView(R.id.toolbar)
-    Toolbar mToolbar;
+
     private String mUrl;
     private String mTitle;
-    protected boolean mIsHidden = false;
+//    protected boolean mIsHidden = false;
     private PhotoViewAttacher mAttacher;
     private Bitmap mBitmap;
 
     @Override
     public void initData() {
         parseIntent();
-        initToolbar();
         initPicture();
+    }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        super.onCreate(savedInstanceState);
     }
 
     private void initPicture() {
@@ -64,31 +69,46 @@ public class PictureActivity extends BaseActivity implements PhotoViewAttacher.O
                         mAttacher.update();
                     }
                 });
-        mAttacher.setOnViewTapListener(this);
-    }
-
-    private void initToolbar() {
-        mToolbar.setNavigationIcon(R.drawable.ic_arrow_back_24dp);
-        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+        mAttacher.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
+            public boolean onLongClick(View v) {
+                new AlertDialog.Builder(PictureActivity.this)
+                        .setItems(new CharSequence[]{"保存", "分享"}, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which) {
+                                    case 0:
+                                        saveImageToGallery(mImageView);
+                                        break;
+                                    case 1:
+                                        GankUtil.share(getApplicationContext(), mUrl, mTitle);
+                                    default:
+                                        break;
+                                }
+                            }
+                        })
+                .show();
+                return true;
+            }
+        });
+        mAttacher.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
+            @Override
+            public void onViewTap(View view, float v, float v1) {
                 finish();
             }
         });
-        mToolbar.setTitle("");
-        mToolbar.inflateMenu(R.menu.menu_picture);
-        mToolbar.setOnMenuItemClickListener(this);
-        mToolbar.setBackgroundColor(Color.TRANSPARENT);
     }
 
-    private void hideOrShowToolbar() {
-        mToolbar.animate()
-                .translationY(mIsHidden ? 0 : -mToolbar.getHeight())
-                .setInterpolator(new DecelerateInterpolator(2))
-                .start();
 
-        mIsHidden = !mIsHidden;
-    }
+
+//    private void hideOrShowToolbar() {
+//        mToolbar.animate()
+//                .translationY(mIsHidden ? 0 : -mToolbar.getHeight())
+//                .setInterpolator(new DecelerateInterpolator(2))
+//                .start();
+//
+//        mIsHidden = !mIsHidden;
+//    }
 
     @Override
     public int getLayoutId() {
@@ -115,26 +135,8 @@ public class PictureActivity extends BaseActivity implements PhotoViewAttacher.O
             File appDir = new File(Environment.getExternalStorageDirectory(), "Gank");
             String msg = String.format(getString(R.string.picture_has_save_to),
                     appDir.getAbsolutePath());
-            SnackbarUtil.showSnackbar(mToolbar,msg);
+            SnackbarUtil.showSnackbar(mImageView,msg);
         }
     }
 
-    @Override
-    public void onViewTap(View view, float v, float v1) {
-        hideOrShowToolbar();
-    }
-
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_save:
-                saveImageToGallery(mImageView);
-                break;
-            case R.id.action_share:
-                GankUtil.share(this, mUrl, mTitle);
-            default:
-                break;
-        }
-        return true;
-    }
 }

@@ -6,6 +6,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowAnimationStyle">@style/windowAnimFade</item>
     </style>
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
@@ -22,5 +23,17 @@
         <item name="android:textColor">#99ffffff</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textAllCaps">false</item>
+    </style>
+    <!--activityOpenEnterAnimation:当打开一个新的Activity，这Animation就会作用于接下来进入屏幕的Activity-->
+    <!--activityOpenExitAnimation:当打开一个新的Activity，这Animation就会作用于接下来退出屏幕的Activity-->
+    <!--activityCloseEnterAnimation: 当关闭现在的Activity，这个Animation就会作用于接下来的进入屏幕的Activity-->
+    <!--activityCloseExitAnimation:当关闭现在的Activity，这个Animation就会作用于接下来的要退出屏幕的Activity-->
+    <style name="windowAnimFade" parent="android:Animation">
+        <item name="android:activityOpenEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:activityCloseExitAnimation">@android:anim/fade_out</item>
+    </style>
+    <style name="windowAnimSlideRight" parent="android:Animation">
+        <item name="android:activityOpenEnterAnimation">@anim/slide_right_in</item>
+        <item name="android:activityCloseExitAnimation">@android:anim/slide_out_right</item>
     </style>
 </resources>

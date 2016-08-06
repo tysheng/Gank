@@ -1,6 +1,5 @@
 package tysheng.gank.adapter;
 
-import android.content.Context;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -18,8 +17,8 @@ import tysheng.gank.bean.GankResult;
 public class DailyAdapter extends BaseQuickAdapter<GankResult> {
 
 
-    public DailyAdapter(Context context, List<GankResult> data) {
-        super(context, R.layout.item_gank_daily, data);
+    public DailyAdapter(List<GankResult> data) {
+        super(R.layout.item_gank_daily, data);
     }
 
     public String[] getYMD(int pos) {
@@ -30,11 +29,12 @@ public class DailyAdapter extends BaseQuickAdapter<GankResult> {
     public String getUrl(int pos) {
         return getItem(pos).url;
     }
+
     @Override
     protected void convert(BaseViewHolder holder, GankResult gankResult) {
         holder.setText(R.id.textView, gankResult.formatPublish())
-        .setOnClickListener(R.id.imageView,new OnItemChildClickListener())
-        .setOnClickListener(R.id.textView,new OnItemChildClickListener());
+                .setOnClickListener(R.id.imageView, new OnItemChildClickListener())
+                .setOnClickListener(R.id.textView, new OnItemChildClickListener());
         Glide.with(mContext).load(gankResult.url).crossFade().into((ImageView) holder.getView(R.id.imageView));
     }
 }

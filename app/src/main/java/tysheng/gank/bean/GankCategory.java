@@ -29,4 +29,7 @@ public class GankCategory implements Serializable {
 
     public List<GankResult> results = new ArrayList<>();
 
+    public GankCategory(List<GankResult> results) {
+        this.results = results;
+    }
 }

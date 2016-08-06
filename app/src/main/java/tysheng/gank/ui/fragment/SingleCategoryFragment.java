@@ -101,7 +101,7 @@ public class SingleCategoryFragment extends BaseFragment {
             }
         });
         if (mGankCategory == null) {
-            mGankCategory = new GankCategory();
+            mGankCategory = new GankCategory(null);
             data = new ArrayList<>();
             getData(typeName, page = 1);
         } else {

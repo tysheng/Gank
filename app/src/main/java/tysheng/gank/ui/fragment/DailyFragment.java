@@ -51,7 +51,7 @@ public class DailyFragment extends BaseFragment {
     private static final int LOAD = 1;
     private int page = 1;
     private DailyAdapter mAdapter;
-    private GankCategory mGankCategory, gank10;
+    private GankCategory gank10;
     private ACache mCache;
     private LinearLayoutManager mLayoutManager;
     private boolean is_gallery;
@@ -75,9 +75,9 @@ public class DailyFragment extends BaseFragment {
         SPHelper spHelper = new SPHelper(mContext);
         is_gallery = spHelper.getSpBoolean(Constant.IS_GALLERY, false);
         mCache = ACache.get(mContext);
-        mGankCategory = (GankCategory) mCache.getAsObject(Constant.CACHE_DAILY);
+        GankCategory mGankCategory = (GankCategory) mCache.getAsObject(Constant.CACHE_DAILY);
         if (mGankCategory == null) {
-            mGankCategory = new GankCategory();
+            mGankCategory = new GankCategory(null);
             getData(REFRESH, page);
         }
 
@@ -86,7 +86,7 @@ public class DailyFragment extends BaseFragment {
         //progressBar
         View emptyView = getActivity().getLayoutInflater().inflate(R.layout.progressbar, (ViewGroup) mRecyclerView.getParent(), false);
 
-        mAdapter = new DailyAdapter(mContext, mGankCategory.results);
+        mAdapter = new DailyAdapter(mGankCategory.results);
         mAdapter.setEmptyView(emptyView);
         mAdapter.openLoadMore(AMOUNT, true);
         mAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
@@ -103,7 +103,7 @@ public class DailyFragment extends BaseFragment {
                     case R.id.imageView:
                         Intent intent;
                         if (is_gallery)
-                            intent = GalleryActivity.newIntent(mContext, gank10, i % 10);
+                            intent = GalleryActivity.newIntent(mContext, new GankCategory(mAdapter.getData()), i);
                         else
                             intent = PictureActivity.newIntent(mContext, mAdapter.getItem(i).url, mAdapter.getItem(i).desc);
                         startActivity(intent);
@@ -117,6 +117,13 @@ public class DailyFragment extends BaseFragment {
         });
         initRecyclerView();
         initSwipe();
+        mFloatingActionButton.post(new Runnable() {
+            @Override
+            public void run() {
+                if (mFloatingActionButton != null)
+                mFloatingActionButton.hide();
+            }
+        });
     }
 
     private void initRecyclerView() {
@@ -127,9 +134,8 @@ public class DailyFragment extends BaseFragment {
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                boolean isScrollingToBottom = dy > 0;
                 if (mFloatingActionButton != null) {
-                    if (isScrollingToBottom) {
+                    if (dy > 0) {
                         if (mFloatingActionButton.isShown())
                             mFloatingActionButton.hide();
                     } else {
@@ -141,10 +147,10 @@ public class DailyFragment extends BaseFragment {
 
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    if (!mFloatingActionButton.isShown())
-                        mFloatingActionButton.show();
-                }
+//                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+//                    if (!mFloatingActionButton.isShown())
+//                        mFloatingActionButton.show();
+//                }
             }
         });
 

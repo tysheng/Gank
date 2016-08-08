@@ -1,13 +1,17 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:windowAnimationStyle">@style/windowAnimFade</item>
+        <item name="android:windowAnimationStyle">@style/windowAnimSlideRight</item>
     </style>
+
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
     <style name="MyTabLayout" parent="Widget.Design.TabLayout">
@@ -28,12 +32,12 @@
     <!--activityOpenExitAnimation:当打开一个新的Activity，这Animation就会作用于接下来退出屏幕的Activity-->
     <!--activityCloseEnterAnimation: 当关闭现在的Activity，这个Animation就会作用于接下来的进入屏幕的Activity-->
     <!--activityCloseExitAnimation:当关闭现在的Activity，这个Animation就会作用于接下来的要退出屏幕的Activity-->
-    <style name="windowAnimFade" parent="android:Animation">
+    <style name="windowAnimFade" parent="android:Animation.Translucent">
         <item name="android:activityOpenEnterAnimation">@android:anim/fade_in</item>
         <item name="android:activityCloseExitAnimation">@android:anim/fade_out</item>
     </style>
-    <style name="windowAnimSlideRight" parent="android:Animation">
+    <style name="windowAnimSlideRight" parent="android:Animation.Translucent">
         <item name="android:activityOpenEnterAnimation">@anim/slide_right_in</item>
-        <item name="android:activityCloseExitAnimation">@android:anim/slide_out_right</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_right_out</item>
     </style>
 </resources>
